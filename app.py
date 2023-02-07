@@ -31,8 +31,8 @@ def get():
     target="Marina"
     soup = fetch_current_booking_page(url,target)
     reservation_type="same_day_reservation"
-    save_to_database(soup,reservation_type)
-    return "TEST"
+    result = save_to_database(soup,reservation_type)
+    return result
 
 
 
@@ -47,19 +47,17 @@ def save_to_database(soup,reservation_type):
       port = "5432",
       password = "HJ2OBvd9I0p1N9ZODbYvFX2NWPBSVfUf"
     )
-    conn.autocommit = True
-    print(soup[0])
-    soup[0]= soup[0][0:20]
-    print(soup[0])
-    cursor = conn.cursor()
-    # query = '''INSERT INTO BOOKING_HISTORY(hotel_name,hotel_price) VALUES (' '''+soup[0]+''' ',' ''' +str(soup[1]) + ''' ') '''
-    query = "INSERT INTO BOOKING_HISTORY(hotel_name,hotel_price, reservation_type) VALUES ('%s','%s','%s')" % (soup[0],str(soup[1]),reservation_type)
-    print(query)
-    cursor.execute(query)
-    conn.commit()
-    print("record inserted")
-    conn.close()
-    return "ok"
+    try:
+        conn.autocommit = True
+        soup[0]= soup[0][0:20]
+        cursor = conn.cursor()
+        query = "INSERT INTO BOOKING_HISTORY(hotel_name,hotel_price, reservation_type) VALUES ('%s','%s','%s')" % (soup[0],str(soup[1]),reservation_type)
+        cursor.execute(query)
+        conn.commit()
+        conn.close()
+        return "ok"
+    except:
+        return "not ok"
 
 
 def fetch_current_booking_page(url,target):
